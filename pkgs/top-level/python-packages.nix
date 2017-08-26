@@ -16333,7 +16333,7 @@ in {
     preConfigure = ''
       substituteInPlace setup.py \
         --replace '"/usr/include"' '"${pkgs.gdb}/include"' \
-        --replace '"/usr/lib"' '"${pkgs.binutils.lib}/lib"'
+        --replace '"/usr/lib"' '"${pkgs.binutils.binutils.lib}/lib"'
     '';
 
     meta = {
