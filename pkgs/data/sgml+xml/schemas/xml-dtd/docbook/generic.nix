@@ -5,7 +5,7 @@ assert unzip != null;
 stdenv.mkDerivation {
   inherit src name postInstall;
   builder = ./builder.sh;
-  buildInputs = [unzip];
+  nativeBuildInputs = [unzip];
 
   meta = meta // {
     platforms = stdenv.lib.platforms.unix;
