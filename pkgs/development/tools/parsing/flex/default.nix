@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bison, m4 }:
+{ stdenv, buildPackages, fetchurl, bison, m4 }:
 
 stdenv.mkDerivation rec {
   name = "flex-${version}";
@@ -10,8 +10,9 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [ bison ];
+  nativeBuildInputs = [ m4 buildPackages.stdenv.cc ];
 
-  propagatedBuildInputs = [ m4 ];
+  nativePropagatedBuildInputs = [ m4 ];
 
   postConfigure = stdenv.lib.optionalString (stdenv.isDarwin || stdenv.isCygwin) ''
     sed -i Makefile -e 's/-no-undefined//;'
