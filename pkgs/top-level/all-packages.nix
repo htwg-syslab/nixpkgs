@@ -6959,6 +6959,7 @@ with pkgs;
   binutils-unwrapped = callPackage ../development/tools/misc/binutils {
     # FHS sys dirs presumably only have stuff for the build platform
     noSysDirs = (targetPlatform != buildPlatform) || noSysDirs;
+    defaultLd = config.defaultLd or null;
   };
   binutils-raw = wrapBinutilsWith {
     libc = if targetPlatform != hostPlatform then libcCross else stdenv.cc.libc;
@@ -6968,6 +6969,7 @@ with pkgs;
   binutils_nogold = lowPrio (binutils-raw.override {
     binutils = binutils-raw.binutils.override {
       gold = false;
+      defaultLd = null;
     };
   });
 

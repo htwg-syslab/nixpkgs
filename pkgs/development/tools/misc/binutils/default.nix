@@ -2,7 +2,12 @@
 , fetchurl, zlib
 , buildPlatform, hostPlatform, targetPlatform
 , noSysDirs, gold ? true, bison ? null
+  # Which ld implementation to use by default?
+, defaultLd ? null
 }:
+
+assert (builtins.elem defaultLd ["bfd" "gold" null]);
+assert defaultLd == "gold" -> gold;
 
 let
   # Note to whoever is upgrading this: 2.29 is broken.
@@ -90,7 +95,7 @@ stdenv.mkDerivation rec {
   configureFlags =
     [ "--enable-shared" "--enable-deterministic-archives" "--disable-werror" ]
     ++ optional (stdenv.system == "mips64el-linux") "--enable-fix-loongson2f-nop"
-    ++ optionals gold [ "--enable-gold" "--enable-plugins" ]
+    ++ optionals gold (["--enable-plugins"] ++ (if defaultLd == "gold" then ["--enable-gold=default"] else ["--enable-gold"]))
     ++ optional (stdenv.system == "i686-linux") "--enable-targets=x86_64-linux-gnu";
 
   enableParallelBuilding = true;
