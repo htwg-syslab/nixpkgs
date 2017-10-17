@@ -2,6 +2,7 @@
 , ghostscript #for postscript and html output
 , psutils, netpbm #for html output
 , buildPackages
+, autoreconfHook
 }:
 
 stdenv.mkDerivation rec {
@@ -15,6 +16,8 @@ stdenv.mkDerivation rec {
   outputs = [ "out" "man" "doc" "info" ];
 
   enableParallelBuilding = false;
+
+  patches = [ ./look-for-ar.patch ];
 
   postPatch = stdenv.lib.optionalString (psutils != null) ''
     substituteInPlace src/preproc/html/pre-html.cpp \
@@ -31,7 +34,7 @@ stdenv.mkDerivation rec {
   '';
 
   buildInputs = [ ghostscript psutils netpbm ];
-  nativeBuildInputs = [ perl ];
+  nativeBuildInputs = [ autoreconfHook perl ];
 
   # Builds running without a chroot environment may detect the presence
   # of /usr/X11 in the host system, leading to an impure build of the
