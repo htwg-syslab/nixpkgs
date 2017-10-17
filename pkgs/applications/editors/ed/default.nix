@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
     sha256 = "1nqhk3n1s1p77g2bjnj55acicsrlyb2yasqxqwpx0w0djfx64ygm";
   };
 
-  unpackCmd = "tar --lzip -xf";
+  unpackCmd = "tar --lzip -xf $curSrc";
 
   nativeBuildInputs = [ lzip ];
 
@@ -26,10 +26,7 @@ stdenv.mkDerivation rec {
     */
   doCheck = !(hostPlatform.isDarwin || hostPlatform != buildPlatform);
 
-  installFlags = [ "DESTDIR=$(out)" ];
-
   configureFlags = [
-    "--exec-prefix=${stdenv.cc.prefix}"
     "CC=${stdenv.cc.prefix}cc"
   ];
 
