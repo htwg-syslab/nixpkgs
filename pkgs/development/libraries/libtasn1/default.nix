@@ -19,9 +19,10 @@ stdenv.mkDerivation rec {
   outputs = [ "out" "dev" "devdoc" ];
   outputBin = "dev";
 
-  buildInputs = [ perl texinfo ];
+  nativeBuildInputs = [ texinfo ];
+  buildInputs = [ perl ];
 
-  doCheck = true;
+  doCheck = stdenv.buildPlatform == stdenv.hostPlatform;
 
   meta = with stdenv.lib; {
     homepage = http://www.gnu.org/software/libtasn1/;
