@@ -53,6 +53,14 @@ stdenv.mkDerivation rec {
     # there) and causes a cycle between the lib and bin outputs, so
     # get rid of it.
     ./no-plugins.patch
+
+    # For some reason bfd ld doesn't search DT_RPATH when cross-compiling. It's
+    # not clear why this behavior was decided upon but it has the unfortunate
+    # consequence that the linker will fail to find transitive dependencies of
+    # shared objects when cross-compiling. Consequently, we are forced to
+    # override this behavior, forcing ld to search DT_RPATH even when
+    # cross-compiling.
+    ./always-search-rpath.patch
   ];
 
   outputs = [ "out" ]
