@@ -151,4 +151,11 @@ in rec {
     targetPlatforms = ["armv7l-linux"];
     filesToInstall = ["u-boot.img" "SPL"];
   };
+
+  ubootMicrozed = buildUBoot rec {
+    defconfig = "zynq_microzed_defconfig";
+    #targetPlatforms = ["armv7l-linux"];
+    targetPlatforms = ["armv7l-linux"];
+    filesToInstall = ["u-boot.bin"];
+  };
 }
