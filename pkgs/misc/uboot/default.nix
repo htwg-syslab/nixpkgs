@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, bc, dtc, python2
+{ stdenv, buildPackages, fetchurl, bc, dtc, python2
 , hostPlatform
 }:
 
@@ -19,7 +19,7 @@ let
       sha256 = "0gqihplap05dlpwdb971wsqyv01nz2vabwq5g5649gr5jczsyjzm";
     };
 
-    nativeBuildInputs = [ bc dtc python2 ];
+    nativeBuildInputs = [ buildPackages.stdenv.cc buildPackages.openssl bc dtc python2 ];
 
     hardeningDisable = [ "all" ];
 
@@ -28,7 +28,7 @@ let
     '';
 
     configurePhase = ''
-      make ${defconfig}
+      make $makeFlags ${defconfig}
     '';
 
     installPhase = ''
@@ -43,12 +43,13 @@ let
     enableParallelBuilding = true;
     dontStrip = true;
 
-    crossAttrs = {
-      makeFlags = [
-        "ARCH=${hostPlatform.platform.kernelArch}"
+    makeFlags = stdenv.lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform)
+      [
         "CROSS_COMPILE=${stdenv.cc.prefix}"
+        "HOSTCC=${buildPackages.stdenv.cc.prefix}gcc"
+        "HOSTCFLAGS+=-I${stdenv.lib.getDev buildPackages.openssl}/include"
+        "HOSTLDFLAGS+=-L${stdenv.lib.getLib buildPackages.openssl}/lib"
       ];
-    };
 
     meta = with stdenv.lib; {
       homepage = http://www.denx.de/wiki/U-Boot/;
