@@ -1,4 +1,4 @@
-{ runCommand, nettools, bc, perl, gmp, libmpc, mpfr, kmod, openssl
+{ buildPackages, runCommand, nettools, bc, perl, gmp, libmpc, mpfr, kmod, openssl
 , writeTextFile, ubootChooser
 , hostPlatform
 }:
@@ -24,19 +24,11 @@ in {
   src,
   # Any patches
   kernelPatches ? [],
-  # Patches for native compiling only
-  nativeKernelPatches ? [],
-  # Patches for cross compiling only
-  crossKernelPatches ? [],
-  # The native kernel .config file
+  # The kernel .config file
   configfile,
-  # The cross kernel .config file
-  crossConfigfile ? configfile,
   # Manually specified nixexpr representing the config
   # If unspecified, this will be autodetected from the .config
   config ? stdenv.lib.optionalAttrs allowImportFromDerivation (readConfig configfile),
-  # Cross-compiling config
-  crossConfig ? if allowImportFromDerivation then (readConfig crossConfigfile) else config,
   # Whether to utilize the controversial import-from-derivation feature to parse the config
   allowImportFromDerivation ? false
 }:
@@ -54,8 +46,8 @@ let
 
   commonMakeFlags = [
     "O=$(buildRoot)"
-  ] ++ stdenv.lib.optionals (stdenv.platform ? kernelMakeFlags)
-    stdenv.platform.kernelMakeFlags;
+  ] ++ stdenv.lib.optionals (hostPlatform.platform ? kernelMakeFlags)
+    hostPlatform.platform.kernelMakeFlags;
 
   drvAttrs = config_: platform: kernelPatches: configfile:
     let
@@ -219,35 +211,23 @@ let
     };
 in
 
-stdenv.mkDerivation ((drvAttrs config stdenv.platform (kernelPatches ++ nativeKernelPatches) configfile) // {
+stdenv.mkDerivation ((drvAttrs config hostPlatform.platform kernelPatches configfile) // {
   name = "linux-${version}";
 
   enableParallelBuilding = true;
 
-  nativeBuildInputs = [ perl bc nettools openssl gmp libmpc mpfr ] ++ optional (stdenv.platform.uboot != null)
-    (ubootChooser stdenv.platform.uboot);
+  nativeBuildInputs = [ buildPackages.stdenv.cc perl bc nettools openssl gmp libmpc mpfr ];
+
+  buildInputs = [ (ubootChooser hostPlatform.platform.uboot) ];
 
   hardeningDisable = [ "bindnow" "format" "fortify" "stackprotector" "pic" ];
 
   makeFlags = commonMakeFlags ++ [
-    "ARCH=${stdenv.platform.kernelArch}"
+    "HOSTCC=${buildPackages.stdenv.cc.prefix}gcc"
+    "ARCH=${stdenv.hostPlatform.platform.kernelArch}"
+  ] ++ stdenv.lib.optional (stdenv.hostPlatform != stdenv.buildPlatform) [
+    "CROSS_COMPILE=${stdenv.cc.prefix}"
   ];
 
-  karch = stdenv.platform.kernelArch;
-
-  crossAttrs = let cp = hostPlatform.platform; in
-    (drvAttrs crossConfig cp (kernelPatches ++ crossKernelPatches) crossConfigfile) // {
-      makeFlags = commonMakeFlags ++ [
-        "ARCH=${cp.kernelArch}"
-        "CROSS_COMPILE=$(crossConfig)-"
-      ];
-
-      karch = cp.kernelArch;
-
-      # !!! uboot has messed up cross-compiling, nativeDrv builds arm tools on x86,
-      # crossDrv builds x86 tools on x86 (but arm uboot). If this is fixed, uboot
-      # can just go into buildInputs (but not nativeBuildInputs since cp.uboot
-      # may be different from stdenv.platform.uboot)
-      buildInputs = optional (cp.uboot != null) (ubootChooser cp.uboot).crossDrv;
-  };
+  karch = hostPlatform.platform.kernelArch;
 })
