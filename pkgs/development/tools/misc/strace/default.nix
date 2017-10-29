@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, perl, libunwind }:
+{ stdenv, buildPackages, fetchurl, perl, libunwind }:
 
 stdenv.mkDerivation rec {
   name = "strace-${version}";
@@ -9,7 +9,7 @@ stdenv.mkDerivation rec {
     sha256 = "10bjh2mrkvx41fk60b2iqv5b5k4r7a3qdsx04iyg904jqb3fp4vw";
   };
 
-  nativeBuildInputs = [ perl ];
+  nativeBuildInputs = [ perl buildPackages.stdenv.cc ];
 
   buildInputs = [ libunwind ]; # support -k
 
