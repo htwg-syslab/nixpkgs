@@ -1,4 +1,4 @@
-{ buildPackages, runCommand, nettools, bc, perl, gmp, libmpc, mpfr, kmod, openssl
+{ buildPackages, runCommand, nettools, bc, perl, gmp, libmpc, mpfr, openssl
 , writeTextFile, ubootChooser
 , hostPlatform
 }:
@@ -90,7 +90,7 @@ let
             echo "stripping FHS paths in \`$mf'..."
             sed -i "$mf" -e 's|/usr/bin/||g ; s|/bin/||g ; s|/sbin/||g'
         done
-        sed -i Makefile -e 's|= depmod|= ${kmod}/bin/depmod|'
+        sed -i Makefile -e 's|= depmod|= ${buildPackages.kmod}/bin/depmod|'
       '';
 
       configurePhase = ''
@@ -185,7 +185,7 @@ let
         find -empty -type d -delete
 
         # Remove reference to kmod
-        sed -i Makefile -e 's|= ${kmod}/bin/depmod|= depmod|'
+        sed -i Makefile -e 's|= ${buildPackages.kmod}/bin/depmod|= depmod|'
       '' else optionalString installsFirmware ''
         make firmware_install $makeFlags "''${makeFlagsArray[@]}" \
           $installFlags "''${installFlagsArray[@]}"
