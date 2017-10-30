@@ -321,16 +321,54 @@ stdenv.mkDerivation ({
   + stdenv.lib.optionalString (langJava || langGo) ''
     export lib=$out;
   ''
-  ;
+  + stdenv.lib.optionalString (buildPlatform != hostPlatform)
+  (let yesFuncs = [
+        "asprintf" "atexit"
+        "basename" "bcmp" "bcopy" "bsearch" "bzero"
+        "calloc" "canonicalize_file_name" "clock"
+        "dup3"
+        "ffs" "fork" "__fsetlocking"
+        "getcwd" "getpagesize" "getrlimit" "getrusage" "gettimeofday"
+        "index" "insque"
+        "memchr" "memcmp" "mempcpy" "memcpy" "memmem" "memmove" "memset" "mkstemps"
+        "on_exit"
+        "psignal" "putenv"
+        "random" "realpath" "rename" "rindex"
+        "sbrk" "setenv" "setproctitle" "setrlimit" "sigsetmask" "snprintf"
+        "stpcpy" "stpncpy" "strcasecmp" "strchr" "strdup"
+        "strerror" "strncasecmp" "strndup" "strnlen" "strrchr" "strsignal" "strstr"
+        "strtod" "strtol" "strtoul" "strtoll" "strtoull" "strverscmp"
+        "sysconf" "sysctl"
+        "times" "tmpnam"
+        "vfork" "vasprintf" "vfprintf" "vprintf" "vsprintf" "vsnprintf"
+        "wait3" "wait4" "waitpid"
+      ];
+      noFuncs = [
+        "_doprnt"
+        "getsysinfo"
+        "pstat_getdynamic" "pstat_getstatic"
+        "spawnvpe" "spawnve" "table" "sysmp"
+      ];
+   in stdenv.lib.concatStringsSep "\n"
+        ([ ''
+           export ac_cv_search_strerror=""
+           export libiberty_cv_var_sys_errlist=yes
+           export libiberty_cv_var_sys_nerr=yes
+           export libiberty_cv_var_sys_siglist=yes
+         ''] ++ map (func: "export ac_cv_func_${func}=yes") yesFuncs
+         ++ map (func: "export ac_cv_func_${func}=no") noFuncs)
+  );
 
   dontDisableStatic = true;
 
   # TODO(@Ericson2314): Always pass "--target" and always prefix.
   configurePlatforms =
     # TODO(@Ericson2314): Figure out what's going wrong with Arm
-    if hostPlatform == targetPlatform && targetPlatform.isArm
+    if buildPlatform == hostPlatform
+    && hostPlatform == targetPlatform
+    && targetPlatform.isArm
     then []
-    else [ "build" "host" ] ++ stdenv.lib.optional (targetPlatform != hostPlatform) "target";
+    else [ "build" "host" "target" ];
 
   configureFlags =
     # Basic dependencies
