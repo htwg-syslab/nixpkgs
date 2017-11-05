@@ -467,54 +467,6 @@ stdenv.mkDerivation ({
     then "install-strip"
     else "install";
 
-  crossAttrs = let
-    xgccArch = targetPlatform.gcc.arch or null;
-    xgccCpu = targetPlatform.gcc.cpu or null;
-    xgccAbi = targetPlatform.gcc.abi or null;
-    xgccFpu = targetPlatform.gcc.fpu or null;
-    xgccFloat = targetPlatform.gcc.float or null;
-    xwithArch = if xgccArch != null then " --with-arch=${xgccArch}" else "";
-    xwithCpu = if xgccCpu != null then " --with-cpu=${xgccCpu}" else "";
-    xwithAbi = if xgccAbi != null then " --with-abi=${xgccAbi}" else "";
-    xwithFpu = if xgccFpu != null then " --with-fpu=${xgccFpu}" else "";
-    xwithFloat = if xgccFloat != null then " --with-float=${xgccFloat}" else "";
-  in {
-    dontStrip = true;
-    configureFlags = ''
-      ${if enableMultilib then "" else "--disable-multilib"}
-      ${if enableShared then "" else "--disable-shared"}
-      ${if langJava then "--with-ecj-jar=${javaEcj.crossDrv}" else ""}
-      ${if javaAwtGtk then "--enable-java-awt=gtk" else ""}
-      ${if langJava && javaAntlr != null then "--with-antlr-jar=${javaAntlr.crossDrv}" else ""}
-      --with-gmp=${gmp.crossDrv}
-      --with-mpfr=${mpfr.crossDrv}
-      --with-mpc=${libmpc.crossDrv}
-      --disable-libstdcxx-pch
-      --without-included-gettext
-      --with-system-zlib
-      --enable-languages=${
-        concatStrings (intersperse ","
-          (  optional langC        "c"
-          ++ optional langCC       "c++"
-          ++ optional langFortran  "fortran"
-          ++ optional langJava     "java"
-          ++ optional langAda      "ada"
-          ++ optional langVhdl     "vhdl"
-          ++ optional langGo       "go"
-          )
-        )
-      }
-      ${if langAda then " --enable-libada" else ""}
-      ${xwithArch}
-      ${xwithCpu}
-      ${xwithAbi}
-      ${xwithFpu}
-      ${xwithFloat}
-    '';
-    buildFlags = "";
-  };
-
-
   # http://gcc.gnu.org/install/specific.html#x86-64-x-solaris210
   CC = if hostPlatform.system == "x86_64-solaris" then "gcc -m64" else "gcc";
 
