@@ -334,7 +334,7 @@ stdenv.mkDerivation ({
         "on_exit"
         "psignal" "putenv"
         "random" "realpath" "rename" "rindex"
-        "sbrk" "setenv" "setproctitle" "setrlimit" "sigsetmask" "snprintf"
+        "sbrk" "setenv" "setrlimit" "sigsetmask" "snprintf"
         "stpcpy" "stpncpy" "strcasecmp" "strchr" "strdup"
         "strerror" "strncasecmp" "strndup" "strnlen" "strrchr" "strsignal" "strstr"
         "strtod" "strtol" "strtoul" "strtoll" "strtoull" "strverscmp"
@@ -347,7 +347,8 @@ stdenv.mkDerivation ({
         "_doprnt"
         "getsysinfo"
         "pstat_getdynamic" "pstat_getstatic"
-        "spawnvpe" "spawnve" "table" "sysmp"
+        "setproctitle" "spawnvpe" "spawnve" "sysmp"
+        "table"
       ];
    in stdenv.lib.concatStringsSep "\n"
         ([ ''
@@ -441,6 +442,11 @@ stdenv.mkDerivation ({
 
     optional (targetPlatform != hostPlatform) crossConfigureFlags ++
     optional (!bootstrap) "--disable-bootstrap" ++
+    optionals (targetPlatform == hostPlatform) (mkPlatformFlags stdenv.targetPlatform) ++
+    [
+      "CC_FOR_BUILD=${buildPackages.stdenv.cc.prefix}gcc"
+      "CXX_FOR_BUILD=${buildPackages.stdenv.cc.prefix}g++"
+    ] ++
 
     # Platform-specific flags
     optional (targetPlatform == hostPlatform && targetPlatform.isi686) "--with-arch=i686" ++
