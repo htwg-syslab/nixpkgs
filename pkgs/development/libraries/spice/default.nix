@@ -1,7 +1,8 @@
 { stdenv, fetchurl, fetchpatch, pkgconfig, pixman, celt, alsaLib
 , openssl, libXrandr, libXfixes, libXext, libXrender, libXinerama
 , libjpeg, zlib, spice_protocol, python, pyparsing, glib, cyrus_sasl
-, lz4 }:
+, lz4
+, kerberos }:
 
 with stdenv.lib;
 
@@ -32,11 +33,14 @@ stdenv.mkDerivation rec {
     })
   ];
 
-  buildInputs = [ pixman celt alsaLib openssl libjpeg zlib
+  buildInputs = [ pkgconfig pixman celt alsaLib openssl libjpeg zlib
                   libXrandr libXfixes libXrender libXext libXinerama
-                  python pyparsing glib cyrus_sasl lz4 ];
+                  python pyparsing glib cyrus_sasl lz4
+                  spice_protocol
+                  kerberos
+                ];
 
-  nativeBuildInputs = [ pkgconfig spice_protocol ];
+  nativeBuildInputs = buildInputs;
 
   NIX_CFLAGS_COMPILE = "-fno-stack-protector";
 

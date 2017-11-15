@@ -52,6 +52,8 @@ stdenv.mkDerivation rec {
     ++ optionals stdenv.isLinux [ alsaLib libaio libcap_ng libcap attr ]
     ++ optionals xenSupport [ xen ];
 
+  nativeBuildInputs = buildInputs;
+
   enableParallelBuilding = true;
 
   patches = [ ./no-etc-install.patch ]

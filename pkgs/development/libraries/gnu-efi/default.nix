@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
     "CC=${stdenv.cc.prefix}gcc"
     "AS=${stdenv.cc.prefix}as"
     "LD=${stdenv.cc.prefix}ld"
-    "AR=${stdenv.cc.prefix}ar"
+    "AR=${stdenv.cc.prefix}gcc-ar"
     "RANLIB=${stdenv.cc.prefix}ranlib"
     "OBJCOPY=${stdenv.cc.prefix}objcopy"
   ] ++ stdenv.lib.optional stdenv.isArm "ARCH=arm";

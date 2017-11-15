@@ -21,7 +21,7 @@ stdenv.mkDerivation rec {
     libxml2 libxslt docbook_xsl
   ];
 
-  buildInputs =
+  buildInputs = nativeBuildInputs ++
     [ makeWrapper glib dbus udev libgudev udisks2 libgcrypt
       libgphoto2 avahi libarchive fuse libcdio
       samba libmtp libcap polkit

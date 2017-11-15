@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
     libtool
     xlibsWrapper xbitmaps libXrender libXmu libXt
     expat libjpeg libpng libiconv
-  ];
+  ] ++ nativeBuildInputs;
 
   nativeBuildInputs = [ pkgconfig flex ];
 

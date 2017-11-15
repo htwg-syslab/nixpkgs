@@ -14,7 +14,7 @@
 , darwin
 }:
 
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   name = "lldb-${version}";
 
   src = fetch "lldb" "0yy43a27zx3r51b6gkv3v2mdiqcq3mf0ngki47ya0i30v3gx4cl4";
@@ -31,7 +31,7 @@ stdenv.mkDerivation {
   '';
 
   nativeBuildInputs = [ cmake python which swig ];
-  buildInputs = [ ncurses zlib libedit libxml2 llvm ]
+  buildInputs = nativeBuildInputs ++ [ ncurses zlib libedit libxml2 llvm ]
     ++ stdenv.lib.optionals stdenv.isDarwin [ darwin.libobjc darwin.apple_sdk.libs.xpc darwin.apple_sdk.frameworks.Foundation darwin.bootstrap_cmds darwin.apple_sdk.frameworks.Carbon darwin.apple_sdk.frameworks.Cocoa ];
 
   CXXFLAGS = "-fno-rtti";

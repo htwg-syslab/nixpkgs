@@ -22,6 +22,8 @@ let
 
     nativeBuildInputs = [ buildPackages.stdenv.cc buildPackages.openssl bc dtc python2 ];
 
+    buildInputs = nativeBuildInputs;
+
     hardeningDisable = [ "all" ];
 
     postPatch = ''
