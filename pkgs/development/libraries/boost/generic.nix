@@ -10,6 +10,8 @@
 , enableStatic ? !enableShared
 , enablePIC ? false
 , enableExceptions ? false
+, enablePython ? false
+, enableNumpy ? false
 , taggedLayout ? ((enableRelease && enableDebug) || (enableSingleThreaded && enableMultiThreaded) || (enableShared && enableStatic))
 , patches ? []
 , mpi ? null
@@ -69,7 +71,7 @@ let
     "runtime-link=${runtime-link}"
     "link=${link}"
     "${cflags}"
-  ] ++ optional (variant == "release") "debug-symbols=off";
+  ] ++ optional (variant == "release") "debug-symbols=off");
 
   nativeB2Flags = [
     "-sEXPAT_INCLUDE=${expat.dev}/include"
@@ -94,7 +96,7 @@ let
   ] ++ optionals (hostPlatform != buildPlatform) [
     "toolset=gcc-cross"
     "--without-python"
-  ]);
+  ];
 
 in
 
