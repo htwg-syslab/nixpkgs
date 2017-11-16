@@ -12,6 +12,7 @@
 , doCheck ? true
 , broken ? false
 , buildPlatform, hostPlatform
+, pkgs
 } @ args:
 
 let
@@ -23,6 +24,15 @@ let
 
   target = builtins.replaceStrings [" "] [","] (builtins.toString targets);
 
+  gccArWrapper = stdenv.mkDerivation {
+    name = "gccArWrapper";
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    phases = "installPhase";
+    installPhase = ''
+        mkdir $out
+        makeWrapper ${stdenv.cc.cc}/bin/gcc-ar $out/bin/${stdenv.cc.prefix}ar
+    '';
+  };
 in
 
 stdenv.mkDerivation {
@@ -122,7 +132,7 @@ stdenv.mkDerivation {
     # Only needed for the debuginfo tests
     ++ optional (!stdenv.isDarwin) gdb;
 
-  buildInputs = [ ncurses ] ++ targetToolchains
+  buildInputs = [ gccArWrapper ncurses ] ++ targetToolchains
     ++ optional (!forceBundledLLVM) llvmShared;
 
   outputs = [ "out" "man" "doc" ];
